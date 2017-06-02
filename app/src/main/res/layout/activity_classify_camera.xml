@@ -33,14 +33,15 @@
         app:layout_constraintTop_toTopOf="parent" />
     <Button
         app:layout_constraintEnd_toEndOf="@id/sample_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
         android:id="@+id/capture_btn"
+        android:translationZ="8dp"
+        android:background="@drawable/round_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintStart_toEndOf="parent"
-        android:layout_marginBottom="24dp"
-        android:text="capture"/>
+        android:layout_marginBottom="24dp" />
     <ImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
