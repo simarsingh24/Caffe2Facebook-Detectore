@@ -1,4 +1,31 @@
-const char * imagenet_classes[] {
+const char * imagenet_classes[]{
+        "Tomato-Hybrid",
+        "Watermelon-Kiran",
+        "Capsicum-Green",
+        "Baby Potatoes",
+        "Apple-Shimla",
+        "Potato-Large",
+        "Persimmon",
+        "Apple-Washington",
+        "Pomagranate-Kabul",
+        "Long-green-chillies",
+        "Apple-Fiji",
+        "Yam",
+        "Curry-Leaves",
+        "Baby-Apples",
+        "Lemons",
+        "OnionsLarge",
+        "Okra",
+        "Cluster-Beans",
+        "Eggplant-Long-Green",
+        "Palak",
+        "Eggplant-Regular",
+        "Apple-Royal-Gala",
+        "Eggplant-Large"
+};
+
+
+/*const char * imagenet_classes[] {
 "tench, Tinca tinca",
 "goldfish, Carassius auratus",
 "great white shark, white shark, man-eater, man-eating shark, Carcharodon carcharias",
@@ -999,4 +1026,4 @@ const char * imagenet_classes[] {
 "bolete",
 "ear, spike, capitulum",
 "toilet tissue, toilet paper, bathroom tissue"
-};
+};*/

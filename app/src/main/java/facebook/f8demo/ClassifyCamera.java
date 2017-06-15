@@ -1,19 +1,12 @@
 package facebook.f8demo;
 
 import android.Manifest;
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
-import android.graphics.PixelFormat;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.graphics.YuvImage;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -21,12 +14,10 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
@@ -38,27 +29,17 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.Surface;
-import android.view.SurfaceHolder;
 import android.view.TextureView;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static android.view.View.SYSTEM_UI_FLAG_IMMERSIVE;
-
 public class ClassifyCamera extends AppCompatActivity {
     private static final String TAG = "F8DEMO";
     private static final int REQUEST_CAMERA_PERMISSION = 200;
@@ -85,13 +66,12 @@ public class ClassifyCamera extends AppCompatActivity {
     private boolean processing = false;
     private Image image = null;
     private boolean run_HWC = false;
-    private static boolean buttonPressed=false;
     private static  SurfaceTexture texture;
     private static ImageReader reader;
     private static Button capture;
     private static int[] mRgbBuffer;
     private static ImageView captureView;
-    private static byte[][] yuvBytes;
+
 
     private static ImageReader.OnImageAvailableListener readerListener;
     static {
@@ -123,7 +103,6 @@ public class ClassifyCamera extends AppCompatActivity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         mgr = getResources().getAssets();
-
         new SetUpNeuralNetwork().execute();
 
         View decorView = getWindow().getDecorView();
@@ -136,40 +115,37 @@ public class ClassifyCamera extends AppCompatActivity {
         textureView = (TextureView) findViewById(R.id.textureView);
         textureView.setSystemUiVisibility(SYSTEM_UI_FLAG_IMMERSIVE);
         capture=(Button)findViewById(R.id.capture_btn);
-        yuvBytes = new byte[3][];
         mRgbBuffer=new int[(textureView.getWidth() * textureView.getHeight())*3];
         capture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 getInfernce();
-
             }
         });
 
         final GestureDetector gestureDetector = new GestureDetector(this.getApplicationContext(),
                 new GestureDetector.SimpleOnGestureListener(){
-            @Override
-            public boolean onDoubleTap(MotionEvent e) {
-                return true;
-            }
+                    @Override
+                    public boolean onDoubleTap(MotionEvent e) {
+                        return true;
+                    }
 
-            @Override
-            public void onLongPress(MotionEvent e) {
-                super.onLongPress(e);
+                    @Override
+                    public void onLongPress(MotionEvent e) {
+                        super.onLongPress(e);
 
-            }
+                    }
 
-            @Override
-            public boolean onDoubleTapEvent(MotionEvent e) {
-                return true;
-            }
+                    @Override
+                    public boolean onDoubleTapEvent(MotionEvent e) {
+                        return true;
+                    }
 
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return true;
-            }
-        });
+                    @Override
+                    public boolean onDown(MotionEvent e) {
+                        return true;
+                    }
+                });
 
         textureView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -235,9 +211,10 @@ public class ClassifyCamera extends AppCompatActivity {
     }
 
     public void getInfernce() {
-
+        Log.d("harsimarSingh","inferenceStarted");
         predictedClass = classificationFromCaffe2(h, w, Y, U, V,
                 rowStride, pixelStride, run_HWC);
+        Log.d("harsimarSingh","finished");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -246,64 +223,6 @@ public class ClassifyCamera extends AppCompatActivity {
         });
 
     }
-    private void getRGBIntFromPlanes(Image.Plane[] planes) {
-        ByteBuffer yPlane = planes[0].getBuffer();
-        ByteBuffer uPlane = planes[1].getBuffer();
-        ByteBuffer vPlane = planes[2].getBuffer();
-
-        int bufferIndex = 0;
-        final int total = yPlane.capacity();
-        final int uvCapacity = uPlane.capacity();
-        final int width = planes[0].getRowStride();
-
-
-        int yPos = 0;
-        for (int i = 0; i < 227; i++) {
-            int uvPos = (i >> 1) * width;
-
-            for (int j = 0; j <width ; j++) {
-                if (uvPos >= uvCapacity-1)
-                    break;
-                if (yPos >= total)
-                    break;
-
-                final int y1 = yPlane.get(yPos++) & 0xff;
-
-                final int u = (uPlane.get(uvPos) & 0xff) - 128;
-                final int v = (vPlane.get(uvPos) & 0xff) - 128;
-                if ((j & 1) == 1) {
-                    uvPos += 2;
-                }
-
-                final int y1192 = 1192 * y1;
-
-                int r = (y1192 + 1634 * v);
-                int g = (y1192 - 833 * v - 400 * u);
-                int b = (y1192 + 2066 * u);
-
-                r = (r < 0) ? 0 : ((r > 262143) ? 262143 : r);
-                g = (g < 0) ? 0 : ((g > 262143) ? 262143 : g);
-                b = (b < 0) ? 0 : ((b > 262143) ? 262143 : b);
-
-                mRgbBuffer[bufferIndex++] = ((r << 6) & 0xff0000) |
-                        ((g >> 2) & 0xff00) |
-                        ((b >> 10) & 0xff);
-            }
-
-        }
-        final Bitmap bitmap=Bitmap.createBitmap(mRgbBuffer,227,227,Bitmap.Config.RGB_565);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                captureView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                captureView.setImageBitmap(bitmap);
-
-            }
-        });
-
-    }
-
-
     protected void createCameraPreview() {
         try {
             texture  = textureView.getSurfaceTexture();
@@ -339,17 +258,7 @@ public class ClassifyCamera extends AppCompatActivity {
                         Ybuffer.get(Y);
                         Ubuffer.get(U);
                         Vbuffer.get(V);
-
-                        /*
-                        final Image.Plane[] planes = image.getPlanes();
-                        final int total = planes[0].getRowStride() * 227;
-                        if (mRgbBuffer == null || mRgbBuffer.length < total)
-                            mRgbBuffer = new int[total];
-
                         processing = false;
-
-                          getRGBIntFromPlanes(planes);
-                           */
                     } finally {
                         if (image != null) {
                             image.close();
