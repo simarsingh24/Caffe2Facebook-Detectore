@@ -332,12 +332,12 @@ public class ClassifyCamera extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-    private void ConvertYUV420ToARGB8888(byte[] yuvByte, byte[] yuvByte1, 
+        
+    //Todo debugging this function remove it and app works fine
+    public static native void ConvertYUV420ToARGB8888(byte[] yuvByte, byte[] yuvByte1, 
                                          byte[] yuvByte2, int[] rgbBytes, int width,
                                          int height, int yRowStride, int uvRowStride, 
-                                         int uvPixelStride, boolean b) {
-    }
+                                         int uvPixelStride, boolean b) ;
     
     private void openCamera() {
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
