@@ -71,11 +71,8 @@ public class ClassifyCamera extends AppCompatActivity {
     private static  SurfaceTexture texture;
     private static ImageReader reader;
     private static Button capture;
-    private static int[] mRgbBuffer;
     private Bitmap capturedImageBitmap;
     private static ImageView captureView;
-    
-    final int sizeTrial=350;
 
     private static ImageReader.OnImageAvailableListener readerListener;
     static {
@@ -83,7 +80,7 @@ public class ClassifyCamera extends AppCompatActivity {
     }
 
     public native String classificationFromCaffe2(int h, int w, byte[] Y, byte[] U, byte[] V,
-                                                  int rowStride, int pixelStride, boolean r_hwc);
+                                                  int rowStride, int pixelStride, boolean r_hwc, int[] rgbBytes);
 
     public native void initCaffe2(AssetManager mgr);
 
@@ -108,6 +105,7 @@ public class ClassifyCamera extends AppCompatActivity {
         new SetUpNeuralNetwork().execute();
 
         setContentView(R.layout.activity_classify_camera);
+
 
 
         captureView=(ImageView)findViewById(R.id.captured_image);
@@ -165,6 +163,8 @@ public class ClassifyCamera extends AppCompatActivity {
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             //open your camera here
             openCamera();
+            rgbBytes = new int[width * height];
+
         }
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
@@ -213,7 +213,7 @@ public class ClassifyCamera extends AppCompatActivity {
     public void getInfernce() {
         Log.d("harsimarSingh","inferenceStarted");
         predictedClass = classificationFromCaffe2(h, w, Y, U, V,
-                rowStride, pixelStride, run_HWC);
+                rowStride, pixelStride, run_HWC,rgbBytes);
         Log.d("harsimarSingh","finished");
         runOnUiThread(new Runnable() {
             @Override
