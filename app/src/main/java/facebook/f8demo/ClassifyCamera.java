@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -72,8 +73,10 @@ public class ClassifyCamera extends AppCompatActivity {
     private static ImageReader reader;
     private static Button capture;
     private static int[] mRgbBuffer;
+    private Bitmap capturedImageBitmap;
     private static ImageView captureView;
-
+    
+    final int sizeTrial=350;
 
     private static ImageReader.OnImageAvailableListener readerListener;
     static {
@@ -106,19 +109,24 @@ public class ClassifyCamera extends AppCompatActivity {
 
         mgr = getResources().getAssets();
         new SetUpNeuralNetwork().execute();
+        //rgbBytes = new int[sizeTrial*sizeTrial];
 
         //View decorView = getWindow().getDecorView();
         //int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         //decorView.setSystemUiVisibility(uiOptions);
 
         setContentView(R.layout.activity_classify_camera);
-        yuvBytes = new byte[3][];
+        //yuvBytes = new byte[3][];
+        //capturedImageBitmap = Bitmap.createBitmap(sizeTrial, sizeTrial, Bitmap.Config.ARGB_8888);
+
 
         captureView=(ImageView)findViewById(R.id.captured_image);
         textureView = (TextureView) findViewById(R.id.textureView);
         textureView.setSystemUiVisibility(SYSTEM_UI_FLAG_IMMERSIVE);
         capture=(Button)findViewById(R.id.capture_btn);
-        mRgbBuffer=new int[(textureView.getWidth() * textureView.getHeight())*3];
+
+        //mRgbBuffer=new int[(textureView.getWidth() * textureView.getHeight())*3];
+
         capture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -222,12 +230,12 @@ public class ClassifyCamera extends AppCompatActivity {
             @Override
             public void run() {
                 tv.setText(predictedClass);
+              //  captureView.setImageBitmap(capturedImageBitmap);
             }
         });
 
     }
     protected void createCameraPreview() {
-        rgbBytes = new int[imageDimension.getHeight() * imageDimension.getWidth()];
         try {
             texture  = textureView.getSurfaceTexture();
             assert texture != null;
@@ -262,7 +270,7 @@ public class ClassifyCamera extends AppCompatActivity {
                         Ybuffer.get(Y);
                         Ubuffer.get(U);
                         Vbuffer.get(V);
-
+/*
                         final Image.Plane[] planes = image.getPlanes();
                         Image.Plane[] copyPlanes=planes.clone();
 
@@ -272,34 +280,19 @@ public class ClassifyCamera extends AppCompatActivity {
                         final int yRowStride = planes[0].getRowStride();
                         final int uvRowStride = planes[1].getRowStride();
                         final int uvPixelStride = planes[1].getPixelStride();
-
-                        ConvertYUV420ToARGB8888(
+*/
+                        /*ConvertYUV420ToARGB8888(
                                 yuvBytes[0],
                                 yuvBytes[1],
                                 yuvBytes[2],
                                 rgbBytes,
-                                imageDimension.getWidth(),
-                                imageDimension.getHeight(),
+                                sizeTrial,
+                                sizeTrial,
                                 yRowStride,
                                 uvRowStride,
                                 uvPixelStride,
                                 false);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                                */
 
                         processing = false;
                     } finally {
@@ -309,6 +302,9 @@ public class ClassifyCamera extends AppCompatActivity {
                     }
                 }
             };
+            
+            //capturedImageBitmap.setPixels(rgbBytes, 0, sizeTrial, 0, 0, sizeTrial, sizeTrial);
+            
             reader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
             captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             captureRequestBuilder.addTarget(surface);
@@ -332,13 +328,13 @@ public class ClassifyCamera extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-        
+        /*
     //Todo debugging this function remove it and app works fine
     public static native void ConvertYUV420ToARGB8888(byte[] yuvByte, byte[] yuvByte1, 
                                          byte[] yuvByte2, int[] rgbBytes, int width,
                                          int height, int yRowStride, int uvRowStride, 
                                          int uvPixelStride, boolean b) ;
-    
+    */
     private void openCamera() {
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {

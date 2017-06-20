@@ -9,7 +9,40 @@
     tools:layout_editor_absoluteX="0dp"
     android:layout_marginTop="8dp"
     android:theme="@android:style/Theme.Holo.NoActionBar"
-    >
+    >+?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    -+
 
     <TextureView
         android:id="@+id/textureView"
@@ -45,6 +78,7 @@
     <ImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:translationZ="8dp"
         android:id="@+id/captured_image"
         app:layout_constraintBottom_toBottomOf="parent" />
 
