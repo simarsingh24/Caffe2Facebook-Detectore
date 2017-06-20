@@ -52,7 +52,6 @@ public class ClassifyCamera extends AppCompatActivity {
     private static byte[] Y ;
     private static  byte[] U ;
     private static byte[] V ;
-    private byte[][] yuvBytes;
     private int[] rgbBytes=null;
 
     private TextureView textureView;
@@ -105,19 +104,10 @@ public class ClassifyCamera extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         mgr = getResources().getAssets();
         new SetUpNeuralNetwork().execute();
-        //rgbBytes = new int[sizeTrial*sizeTrial];
-
-        //View decorView = getWindow().getDecorView();
-        //int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        //decorView.setSystemUiVisibility(uiOptions);
 
         setContentView(R.layout.activity_classify_camera);
-        //yuvBytes = new byte[3][];
-        //capturedImageBitmap = Bitmap.createBitmap(sizeTrial, sizeTrial, Bitmap.Config.ARGB_8888);
 
 
         captureView=(ImageView)findViewById(R.id.captured_image);
@@ -125,7 +115,6 @@ public class ClassifyCamera extends AppCompatActivity {
         textureView.setSystemUiVisibility(SYSTEM_UI_FLAG_IMMERSIVE);
         capture=(Button)findViewById(R.id.capture_btn);
 
-        //mRgbBuffer=new int[(textureView.getWidth() * textureView.getHeight())*3];
 
         capture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -270,29 +259,6 @@ public class ClassifyCamera extends AppCompatActivity {
                         Ybuffer.get(Y);
                         Ubuffer.get(U);
                         Vbuffer.get(V);
-/*
-                        final Image.Plane[] planes = image.getPlanes();
-                        Image.Plane[] copyPlanes=planes.clone();
-
-                        yuvBytes[0]=Y;
-                        yuvBytes[1]=U;
-                        yuvBytes[2]=V;
-                        final int yRowStride = planes[0].getRowStride();
-                        final int uvRowStride = planes[1].getRowStride();
-                        final int uvPixelStride = planes[1].getPixelStride();
-*/
-                        /*ConvertYUV420ToARGB8888(
-                                yuvBytes[0],
-                                yuvBytes[1],
-                                yuvBytes[2],
-                                rgbBytes,
-                                sizeTrial,
-                                sizeTrial,
-                                yRowStride,
-                                uvRowStride,
-                                uvPixelStride,
-                                false);
-                                */
 
                         processing = false;
                     } finally {
@@ -303,8 +269,7 @@ public class ClassifyCamera extends AppCompatActivity {
                 }
             };
             
-            //capturedImageBitmap.setPixels(rgbBytes, 0, sizeTrial, 0, 0, sizeTrial, sizeTrial);
-            
+
             reader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
             captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             captureRequestBuilder.addTarget(surface);
@@ -328,13 +293,6 @@ public class ClassifyCamera extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-        /*
-    //Todo debugging this function remove it and app works fine
-    public static native void ConvertYUV420ToARGB8888(byte[] yuvByte, byte[] yuvByte1, 
-                                         byte[] yuvByte2, int[] rgbBytes, int width,
-                                         int height, int yRowStride, int uvRowStride, 
-                                         int uvPixelStride, boolean b) ;
-    */
     private void openCamera() {
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
